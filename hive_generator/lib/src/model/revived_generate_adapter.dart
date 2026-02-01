@@ -15,6 +15,8 @@ class RevivedGenerateAdapters {
   /// The reserved type ids
   final Set<int> reservedTypeIds;
 
+  final Map<TypeChecker, Revivable> codecs;
+
   /// Revive a GenerateAdapters annotation
   RevivedGenerateAdapters(ConstantReader annotation)
       : specs = annotation
@@ -28,7 +30,13 @@ class RevivedGenerateAdapters {
             .setValue
             .map((e) => e.toIntValue())
             .whereType<int>()
-            .toSet();
+            .toSet(),
+        codecs = annotation.read('codecs').mapValue.map((key, value) {
+          return MapEntry(
+            TypeChecker.fromStatic(key!.toTypeValue()!),
+            ConstantReader(value).revive(),
+          );
+        });
 }
 
 /// A revived adapter spec

@@ -1,8 +1,8 @@
 import 'package:build/build.dart';
-import 'package:hive_ce_generator/src/builder/schema_migrator_builder.dart';
-import 'package:hive_ce_generator/src/generator/adapters_generator.dart';
 import 'package:hive_ce_generator/src/builder/registrar_builder.dart';
 import 'package:hive_ce_generator/src/builder/registrar_intermediate_builder.dart';
+import 'package:hive_ce_generator/src/builder/schema_migrator_builder.dart';
+import 'package:hive_ce_generator/src/generator/adapters_generator.dart';
 import 'package:hive_ce_generator/src/generator/type_adapter_generator.dart';
 import 'package:source_gen/source_gen.dart';
 

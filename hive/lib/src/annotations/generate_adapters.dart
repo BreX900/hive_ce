@@ -9,6 +9,7 @@ class GenerateAdapters {
     this.specs, {
     this.firstTypeId = 0,
     this.reservedTypeIds = const {},
+    this.codecs = const {},
   });
   // coverage:ignore-end
 
@@ -22,6 +23,26 @@ class GenerateAdapters {
   ///
   /// These type ids will be skipped during generation
   final Set<int> reservedTypeIds;
+
+  /// Custom codecs for specific types.
+  ///
+  /// This allows you to define how third-party types (like immutable collections)
+  /// should be serialized and deserialized.
+  ///
+  /// The keys are the types to handle, and the values are codec instances.
+  /// A codec class must implement `encode` and `decode` methods.
+  ///
+  /// Example:
+  /// ```dart
+  /// class IListCodec {
+  ///   const IListCodec();
+  ///
+  ///   IList<T> decode<T>(BinaryReader reader, Object data) => (data as List<dynamic>).cast<T>().lockUnsafe;
+  ///
+  ///   Object? encode<T>(BinaryWriter writer, IList<T> obj) => obj.unlockView;
+  /// }
+  /// ```
+  final Map<Type, Object> codecs;
 }
 
 /// Configuration that specifies the generation of a TypeAdapter

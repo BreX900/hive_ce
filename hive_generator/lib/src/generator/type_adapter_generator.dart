@@ -7,9 +7,9 @@ import 'package:hive_ce_generator/src/adapter_builder/enum_adapter_builder.dart'
 import 'package:hive_ce_generator/src/helper/helper.dart';
 import 'package:hive_ce_generator/src/helper/type_helper.dart';
 import 'package:hive_ce_generator/src/model/hive_schema.dart';
+import 'package:meta/meta.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_helper/source_helper.dart';
-import 'package:meta/meta.dart';
 
 /// TODO: Document this!
 class TypeAdapterGenerator extends GeneratorForAnnotation<HiveType> {
@@ -38,6 +38,7 @@ class TypeAdapterGenerator extends GeneratorForAnnotation<HiveType> {
     String? adapterName,
     HiveSchemaType? schema,
     Set<String> ignoredFields = const {},
+    Map<TypeChecker, Revivable> codecs = const {},
   }) {
     final cls = getClass(element);
     final getAccessorsResult = getAccessors(
@@ -57,7 +58,7 @@ class TypeAdapterGenerator extends GeneratorForAnnotation<HiveType> {
     adapterName ??= generateAdapterName(cls.displayName);
     final builder = cls.thisType.isEnum
         ? EnumAdapterBuilder(cls, getters)
-        : ClassAdapterBuilder(cls, getters, setters);
+        : ClassAdapterBuilder(cls, getters, setters, codecs);
 
     final content = '''
     class $adapterName extends TypeAdapter<${cls.displayName}> {

@@ -58,13 +58,19 @@ class ClassSpec2Adapter extends TypeAdapter<ClassSpec2> {
       (fields[2] as List).cast<String>(),
       (fields[3] as Set).cast<String>(),
       (fields[4] as List).cast<String>(),
+      const IListCodec().decode(reader, fields[5]),
+      const ISetCodec().decode(reader, fields[6]),
+      const IMapCodec().decode(reader, fields[7]),
+      const BuiltListCodec().decode(reader, fields[8]),
+      const BuiltSetCodec().decode(reader, fields[9]),
+      const BuiltMapCodec().decode(reader, fields[10]),
     );
   }
 
   @override
   void write(BinaryWriter writer, ClassSpec2 obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.value)
       ..writeByte(1)
@@ -74,7 +80,19 @@ class ClassSpec2Adapter extends TypeAdapter<ClassSpec2> {
       ..writeByte(3)
       ..write(obj.set)
       ..writeByte(4)
-      ..write(obj.list);
+      ..write(obj.list)
+      ..writeByte(5)
+      ..write(const IListCodec().encode(writer, obj.iList))
+      ..writeByte(6)
+      ..write(const ISetCodec().encode(writer, obj.iSet))
+      ..writeByte(7)
+      ..write(const IMapCodec().encode(writer, obj.iMap))
+      ..writeByte(8)
+      ..write(const BuiltListCodec().encode(writer, obj.builtList))
+      ..writeByte(9)
+      ..write(const BuiltSetCodec().encode(writer, obj.builtSet))
+      ..writeByte(10)
+      ..write(const BuiltMapCodec().encode(writer, obj.builtMap));
   }
 
   @override

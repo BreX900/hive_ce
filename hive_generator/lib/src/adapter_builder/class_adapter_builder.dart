@@ -10,17 +10,19 @@ import 'package:collection/collection.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:hive_ce_generator/src/adapter_builder/adapter_builder.dart';
 import 'package:hive_ce_generator/src/helper/helper.dart';
-import 'package:source_gen/source_gen.dart';
-
 import 'package:hive_ce_generator/src/helper/type_helper.dart';
+import 'package:source_gen/source_gen.dart';
 
 /// TODO: Document this!
 class ClassAdapterBuilder extends AdapterBuilder {
+  final Map<TypeChecker, Revivable> codecs;
+
   /// TODO: Document this!
   const ClassAdapterBuilder(
     super.cls,
     super.getters,
     super.setters,
+    this.codecs,
   );
 
   /// [TypeChecker] for [HiveList].
@@ -120,9 +122,21 @@ class ClassAdapterBuilder extends AdapterBuilder {
     return '$variable == null ? $defaultValue : $value';
   }
 
+  String? _findCodec(DartType type) {
+    for (final MapEntry(key: checker, value: codec) in codecs.entries) {
+      if (checker.isAssignableFromType(type)) {
+        return 'const ${codec.source.fragment}()';
+      }
+    }
+    return null;
+  }
+
   String _cast(DartType type, String variable) {
     final suffix = _suffixFromType(type);
-    if (hiveListChecker.isAssignableFromType(type)) {
+
+    if (_findCodec(type) case final codec?) {
+      return '$codec.decode(reader, $variable)';
+    } else if (hiveListChecker.isAssignableFromType(type)) {
       return '($variable as HiveList$suffix)$suffix.castHiveList()';
     } else if (setChecker.isAssignableFromType(type)) {
       return '($variable as Set$suffix)${_castIterable(type)}';
@@ -193,9 +207,12 @@ class ClassAdapterBuilder extends AdapterBuilder {
     if (getters.isNotEmpty) code.write('.');
     code.writeln('.writeByte(${getters.length})');
     for (final field in getters) {
+      final variable = 'obj.${field.name}';
+      final codec = _findCodec(field.type);
+
       code.writeln('''
       ..writeByte(${field.index})
-      ..write(obj.${field.name})''');
+      ..write(${codec != null ? '$codec.encode(writer, $variable)' : variable})''');
     }
     code.writeln(';');
 
